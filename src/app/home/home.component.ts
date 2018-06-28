@@ -1,0 +1,34 @@
+import { Component, OnInit } from '@angular/core';
+import {OktaAuthService} from '@okta/okta-angular';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
+})
+export class HomeComponent implements OnInit {
+  email: string;
+  isAuthenticated: boolean;
+
+  constructor(public oktaAuth: OktaAuthService) {
+    this.oktaAuth.$authenticationState.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated);
+  }
+
+  login() {
+    this.oktaAuth.loginRedirect();
+  }
+
+  logout(uri) {
+    this.oktaAuth.logout(uri);
+  }
+
+  async ngOnInit() {
+    this.isAuthenticated = await this.oktaAuth.isAuthenticated();
+    if (this.isAuthenticated) {
+      const userClaims = await this.oktaAuth.getUser();
+      this.email = userClaims.email;
+    } else {
+      this.oktaAuth.logout();
+    }
+  }
+}

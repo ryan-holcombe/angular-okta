@@ -1,0 +1,18 @@
+<h1 class="ui header">Implicit Flow w/ Okta Hosted Login Page</h1>
+<div>
+  <button *ngIf="!isAuthenticated" id="login-button" class="ui primary button" role="button" (click)="login()">Login</button>
+  <button *ngIf="isAuthenticated" (click)="logout('/')">Logout</button>
+</div>
+
+<div *ngIf="isAuthenticated && email">
+  <p>Welcome back, {{ email }}!</p>
+  <p>
+    You have successfully authenticated against your Okta org, and have been redirected back to this application. You
+    now have an ID Token and access token in local storage.
+    Visit the <a href="/profile">My Profile</a> page to take a look inside the ID Token.
+  </p>
+  <p>
+    You can list vendors here.
+    <a href="/list">List</a>
+  </p>
+</div>

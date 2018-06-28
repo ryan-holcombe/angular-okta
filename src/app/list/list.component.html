@@ -1,0 +1,20 @@
+<h1 class="ui header">
+  <i aria-hidden="true" class="drivers license outline icon"></i> My User Profile (ID Token Claims)
+</h1>
+<h3><a href="/">Home</a></h3>
+<table class="ui table">
+  <thead>
+  <tr>
+    <th>First Name</th>
+    <th>Last Name</th>
+    <th>Email</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let user of users">
+    <td>{{user.firstName}}</td>
+    <td>{{user.lastName}}</td>
+    <td>{{user.email}}</td>
+  </tr>
+  </tbody>
+</table>
