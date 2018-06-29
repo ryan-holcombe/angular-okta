@@ -1,0 +1,31 @@
+# Default values for angular-okta.
+# This is a YAML-formatted file.
+# Declare name/value pairs to be passed into your templates.
+# name: value
+
+name: "angular-okta"
+service:
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8888
+image:
+  name: "rholcombe/angular-okta"
+  tag: "latest"
+  pullPolicy: "Always"
+  replicaCount: 3
+resources:
+  cpu: "100m"
+  memory: "128Mi"
+## Ingress settings
+ingress:
+  enabled: false
+  hostname:
+  annotations:
+     kubernetes.io/ingress.class: nginx
+  tls: false
+livenessProbe:
+  enabled: true
+  path: "/healthz"
+readinessProbe:
+  enabled: true
+  path: "/healthz"

@@ -1,0 +1,11 @@
+ingress:
+  enabled: true
+  hostname: angular-okta.gke.rholcombe30.com
+  annotations:
+     kubernetes.io/ingress.class: nginx
+  tls: false
+image:
+  replicaCount: 1
+  resources:
+    cpu: "10m"
+    memory: "128Mi"

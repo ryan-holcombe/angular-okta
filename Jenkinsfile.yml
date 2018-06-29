@@ -1,0 +1,5 @@
+name: angular-okta
+image:
+  host: index.docker.io
+  jenkinsCredsId: docker_creds
+  name: rholcombe/angular-okta
