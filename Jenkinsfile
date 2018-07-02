@@ -42,6 +42,7 @@ volumes:[
     }
 
     container('docker') {
+        sh "apk update && apk add make git"
         def releaseTag = sh(returnStdout: true, script: "git describe --tags --always --dirty").trim()
         def tags = [releaseTag, "latest"]
 
