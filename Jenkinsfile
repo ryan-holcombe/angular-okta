@@ -2,12 +2,13 @@
 
 podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'lachlanevenson/jnlp-slave:3.10-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '50m'),
-    containerTemplate(name: 'docker', image: 'docker:18.05', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
+    containerTemplate(name: 'docker', image: 'gcr.io/kaniko-project/executor:debug', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
     containerTemplate(name: 'node', image: 'mattlewis92/docker-nodejs-chrome:master', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
-    containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.9.1', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m')
+    containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.9.1', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
 ],
 volumes:[
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
+    secretVolume(secretName: 'docker-config', mountPath: '/root/.docker'),
 ]){
 
   node ('jenkins-pipeline') {
@@ -43,29 +44,18 @@ volumes:[
 
     container('docker') {
         sh "apk update && apk add make git"
+
         def releaseTag = sh(returnStdout: true, script: "git describe --tags --always --dirty").trim()
         def tags = [releaseTag, "latest"]
+        def kanikoTagFmt = []
+        for (String tag: tags) {
+          kanikoTagFmt.add("-d rholcombe/angular-okta:$tag ")
+        } 
 
-        stage ('docker login') {
-            // perform docker login to container registry as the docker-pipeline-plugin doesn't work with the next auth json format
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.image.jenkinsCredsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS']]) {
-              sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-            }
-        }
-
-        stage ('docker build') {
-            println "Building docker images with tags $tags"
-            sh "docker build -t angular-okta:local ."
-            for (String tag: tags) {
-                sh "docker tag angular-okta:local rholcombe/angular-okta:$tag"
-            }
-        }
-
-        stage ('docker push') {
-            println "Pushing docker images to repository ${config.image.name}"
-            for (String tag: tags) {
-                sh "docker push rholcombe/angular-okta:$tag"
-            }
+        stage ('docker build and push') {
+          sh """
+            /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure-skip-tls-verify $kanikoTagFmt
+          """
         }
     }
 
