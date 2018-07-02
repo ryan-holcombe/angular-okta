@@ -33,7 +33,7 @@ volumes:[
         }
 
         stage('ng unit tests') {
-            sh "ng test --watch=false --no-progress --browsers=ChromeNoSandboxHeadless"
+            sh "ng test --watch=false --no-progress"
         }
 
         stage('ng e2e tests') {
