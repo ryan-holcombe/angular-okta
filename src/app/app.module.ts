@@ -18,7 +18,7 @@ const config: OktaConfig = {
   issuer: 'https://dev-638248.oktapreview.com/oauth2/default',
   redirectUri: 'http://localhost:8000/implicit/callback',
   clientId: environment.clientId,
-}
+};
 
 @NgModule({
   declarations: [

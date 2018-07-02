@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditComponent } from './edit.component';
+import {RouterTestingModule} from '@angular/router/testing';
+import {OktaAuthModule, OktaAuthService} from '@okta/okta-angular';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {UserService} from '../user.service';
 
 describe('EditComponent', () => {
   let component: EditComponent;
@@ -8,9 +12,20 @@ describe('EditComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EditComponent ]
+      imports: [
+        OktaAuthModule.initAuth({
+          issuer: `http://fake.url/oauth2/fake`,
+          redirectUri: `http://fake.url/implicit/callback`,
+          clientId: 'clientId'}),
+        RouterTestingModule.withRoutes(
+          [{path: '', component: EditComponent}]
+        ),
+        HttpClientTestingModule,
+      ],
+      declarations: [ EditComponent ],
+      providers: [OktaAuthService, UserService]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

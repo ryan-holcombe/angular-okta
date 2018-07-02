@@ -23,16 +23,20 @@ volumes:[
     println "pipeline config ==> ${config}"
 
     container('node') {
+        stage('install ng') {
+            sh "npm install -g @angular/cli"
+        }
+
         stage('npm install') {
             sh "npm install"
         }
 
         stage('ng unit tests') {
-            sh "ng test"
+            sh "ng test --watch=false --no-progress --browsers=ChromeNoSandboxHeadless"
         }
 
         stage('ng e2e tests') {
-            sh "npm e2e"
+            sh "ng e2e"
         }
     }
 
@@ -78,3 +82,4 @@ volumes:[
     }
   }
 }
+

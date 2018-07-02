@@ -15,7 +15,7 @@ const appRoutes: Routes = [
   { path: 'list', component: ListComponent, canActivate: [ OktaAuthGuard ], },
   { path: 'edit', component: EditComponent, canActivate: [ OktaAuthGuard ], },
   { path: 'implicit/callback', component: OktaCallbackComponent },
-]
+];
 
 @NgModule({
   imports: [
