@@ -3,7 +3,7 @@
 podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'lachlanevenson/jnlp-slave:3.10-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '50m'),
     containerTemplate(name: 'docker', image: 'docker:18.05', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
-    containerTemplate(name: 'node', image: 'node:10.5-alpine', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
+    containerTemplate(name: 'node', image: 'mattlewis92/docker-nodejs-chrome:master', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.9.1', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m')
 ],
 volumes:[
@@ -23,6 +23,7 @@ volumes:[
     println "pipeline config ==> ${config}"
 
     container('node') {
+
         stage('install ng') {
             sh "npm install -g @angular/cli"
         }
