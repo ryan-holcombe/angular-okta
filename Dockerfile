@@ -1,23 +1,24 @@
 ### STAGE 1: Build ###
 
 # We label our stage as 'builder'
-FROM node:10.5-alpine as builder
+FROM node:10.5 as builder
 
 ARG configuration=production
 
-COPY package.json ./
+WORKDIR /ng-app
+
+COPY package*.json /ng-app/
 
 RUN npm set progress=false && npm config set depth 0 && npm cache clean --force
 
 ## Storing node modules on a separate layer will prevent unnecessary npm installs at each build
-RUN npm i && mkdir /ng-app && cp -R ./node_modules ./ng-app
+#RUN npm install && mkdir /ng-app && cp -R ./node_modules ./ng-app
+RUN npm install
 
-WORKDIR /ng-app
-
-COPY . .
+COPY . /ng-app/
 
 ## Build the angular app in production mode and store the artifacts in dist folder
-RUN $(npm bin)/ng build --output-path=./dist --prod -c $configuration
+RUN npm run build -- --output-path=./dist --configuration $configuration
 
 
 ### STAGE 2: Setup ###

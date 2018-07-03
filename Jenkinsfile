@@ -2,13 +2,13 @@
 
 podTemplate(label: 'jenkins-pipeline', containers: [
     containerTemplate(name: 'jnlp', image: 'lachlanevenson/jnlp-slave:3.10-1-alpine', args: '${computer.jnlpmac} ${computer.name}', workingDir: '/home/jenkins', resourceRequestCpu: '50m'),
-    containerTemplate(name: 'docker', image: 'gcr.io/kaniko-project/executor:debug', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
+    containerTemplate(name: 'docker', image: 'gcr.io/kaniko-project/executor:debug', command: '/busybox/cat', ttyEnabled: true, resourceRequestCpu: '50m'),
     containerTemplate(name: 'node', image: 'mattlewis92/docker-nodejs-chrome:master', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
     containerTemplate(name: 'helm', image: 'lachlanevenson/k8s-helm:v2.9.1', command: 'cat', ttyEnabled: true, resourceRequestCpu: '50m'),
 ],
 volumes:[
     hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
-    secretVolume(secretName: 'docker-config', mountPath: '/root/.docker'),
+    secretVolume(secretName: 'docker-config', mountPath: '/home/jenkins/.docker'),
 ]){
 
   node ('jenkins-pipeline') {
@@ -18,6 +18,10 @@ volumes:[
     def go_dir = "github.com/sythe21/angular-okta"
 
     git 'https://github.com/sythe21/angular-okta.git'
+    // checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/sythe21/angular-okta.git']]])
+
+    def releaseTag = sh(returnStdout: true, script: "git describe --tags --always --dirty").trim()
+    def tags = [releaseTag, "latest"]
 
     // read in required jenkins workflow config values
     def config = readYaml file: 'Jenkinsfile.yml'
@@ -37,23 +41,20 @@ volumes:[
             sh "ng test --watch=false --no-progress"
         }
 
-        stage('ng e2e tests') {
-            sh "ng e2e"
-        }
+        //stage('ng e2e tests') {
+        //    sh "ng e2e"
+        //}
     }
 
-    container('docker') {
-        sh "apk update && apk add make git"
+    container(name: 'docker', shell:'/busybox/sh') {
 
-        def releaseTag = sh(returnStdout: true, script: "git describe --tags --always --dirty").trim()
-        def tags = [releaseTag, "latest"]
         def kanikoTagFmt = []
         for (String tag: tags) {
           kanikoTagFmt.add("-d rholcombe/angular-okta:$tag ")
-        } 
+        }
 
         stage ('docker build and push') {
-          sh """
+          sh """#!/busybox/sh
             /kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure-skip-tls-verify $kanikoTagFmt
           """
         }
