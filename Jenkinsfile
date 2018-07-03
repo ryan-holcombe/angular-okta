@@ -51,13 +51,6 @@ volumes:[
 
     container('docker') {
 
-        stage ('docker login') {
-            // perform docker login to container registry as the docker-pipeline-plugin doesn't work with the next auth json format
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: config.image.jenkinsCredsId, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS']]) {
-              sh "docker login -u $DOCKER_USER -p $DOCKER_PASS"
-            }
-        }
-
         stage ('docker build') {
             println "Building docker images with tags $tags"
             sh "docker build -f Dockerfile.nginx -t angular-okta:local ."
