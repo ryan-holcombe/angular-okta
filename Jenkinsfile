@@ -52,16 +52,13 @@ volumes:[
 
     container(name: 'docker', shell:'/busybox/sh') {
 
-        def kanikoTagFmt = []
-        for (String tag: tags) {
-          kanikoTagFmt.add("-d rholcombe/angular-okta:$tag ")
-        }
-
         stage ('docker build and push') {
           println "Building dockerfile with the following tags: $tags"
-          sh """#!/busybox/sh
-            /kaniko/executor -f `pwd`/Dockerfile.kaniko -c `pwd` --insecure-skip-tls-verify ${kanikoTagFmt.join()}
-          """
+          for (String tag: tags) {
+            sh """#!/busybox/sh
+              /kaniko/executor -f `pwd`/Dockerfile.kaniko -c `pwd` --insecure-skip-tls-verify --destination rholcombe/angular-okta:$tag
+            """
+          }
         }
     }
 
