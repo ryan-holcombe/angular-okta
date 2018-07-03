@@ -44,6 +44,10 @@ volumes:[
         //stage('ng e2e tests') {
         //    sh "ng e2e"
         //}
+
+        stage('npm build') {
+            sh "npm run build -- --output-path=./dist --configuration=production --prod --build-optimizer"
+        }
     }
 
     container(name: 'docker', shell:'/busybox/sh') {
