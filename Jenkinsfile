@@ -60,7 +60,7 @@ volumes:[
         stage ('docker build and push') {
           println "Building dockerfile with the following tags: $tags"
           sh """#!/busybox/sh
-            /kaniko/executor -f `pwd`/Dockerfile.kaniko -c `pwd` --insecure-skip-tls-verify $kanikoTagFmt
+            /kaniko/executor -f `pwd`/Dockerfile.kaniko -c `pwd` --insecure-skip-tls-verify ${kanikoTagFmt.join()}
           """
         }
     }
