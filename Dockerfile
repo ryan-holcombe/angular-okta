@@ -11,7 +11,7 @@ COPY *.json /ng-app/
 COPY /src /ng-app/src/
 
 RUN npm install
-RUN npm run build -- --output-path=./dist --configuration $configuration
+RUN npm run build -- --output-path=./dist --configuration=$configuration
 
 
 ### STAGE 2: Setup ###
